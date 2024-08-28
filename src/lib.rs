@@ -53,5 +53,16 @@ impl Contract {
         );
         self.tokens.insert(id, receiver);
     }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test() {
+
+    }
 
 }
