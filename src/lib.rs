@@ -1,55 +1,57 @@
-// Find all our documentation at https://docs.near.org
-use near_sdk::{log, near};
+use near_sdk::store::LookupMap;
+use near_sdk::{env, log, near, require, AccountId};
 
-// Define the contract structure
+pub type Balance = u8;
+
 #[near(contract_state)]
 pub struct Contract {
-    greeting: String,
-}
-
-// Define the default, which automatically initializes the contract
-impl Default for Contract {
-    fn default() -> Self {
-        Self {
-            greeting: "Hello".to_string(),
-        }
-    }
+    pub tokens: LookupMap<Balance, AccountId>,
+    pub approvals: LookupMap<Balance, AccountId>,
+    pub supply: u16,
 }
 
 // Implement the contract structure
 #[near]
 impl Contract {
+    #[init]
+    #[private] // only callable by the contract's account
+    pub fn init(
+        admin: AccountId
+    ) -> Self {
+        Self {
+            tokens: {
+                let mut a = LookupMap::new(b"tokens".to_vec());
+                a.insert(0, admin);
+                a
+            },
+            approvals: LookupMap::new(b"approvals".to_vec()),
+            supply: 1,
+        }
+    }
     // Public method - returns the greeting saved, defaulting to DEFAULT_GREETING
-    pub fn get_greeting(&self) -> String {
-        self.greeting.clone()
+    pub fn owner_of(&self, id: Balance) -> Option<AccountId> {
+        self.tokens.get(&id).cloned()
     }
 
-    // Public method - accepts a greeting, such as "howdy", and records it
-    pub fn set_greeting(&mut self, greeting: String) {
-        log!("Saving greeting: {greeting}");
-        self.greeting = greeting;
-    }
-}
-
-/*
- * The rest of this file holds the inline tests for the code above
- * Learn more about Rust tests: https://doc.rust-lang.org/book/ch11-01-writing-tests.html
- */
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn get_default_greeting() {
-        let contract = Contract::default();
-        // this test did not call set_greeting so should return the default "Hello" greeting
-        assert_eq!(contract.get_greeting(), "Hello");
+    pub fn mint(&mut self) -> Balance {
+        self.tokens.insert(self.supply.to_le_bytes()[0], env::predecessor_account_id());
+        let id = self.supply;
+        self.supply += 1;
+        id as Balance
     }
 
-    #[test]
-    fn set_then_get_greeting() {
-        let mut contract = Contract::default();
-        contract.set_greeting("howdy".to_string());
-        assert_eq!(contract.get_greeting(), "howdy");
+    pub fn approve(&mut self, id: Balance, delegatee: AccountId) {
+        require!(self.tokens.get(&id).unwrap().clone() == env::predecessor_account_id(), "not owner!");
+        self.approvals.insert(id, delegatee);
     }
+
+    pub fn transfer(&mut self, id: Balance, receiver: AccountId) {
+        require!(
+            self.tokens.get(&id).unwrap().clone() == env::predecessor_account_id()
+            || self.approvals.get(&id).unwrap().clone() == env::predecessor_account_id()
+            , "not owner!"
+        );
+        self.tokens.insert(id, receiver);
+    }
+
 }
