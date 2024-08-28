@@ -1,6 +1,6 @@
-# Near-Contract
+# Vulnerable NEAR Contract
 
-cargo-near-new-project-description
+:warning: This repository contains a vulnerable NEAR smart contract. Do not use in production.
 
 ## How to Build Locally?
 
@@ -31,7 +31,3 @@ cargo near deploy <account-id>
 - [near CLI](https://near.cli.rs) - Interact with NEAR blockchain from command line
 - [NEAR Rust SDK Documentation](https://docs.near.org/sdk/rust/introduction)
 - [NEAR Documentation](https://docs.near.org)
-- [NEAR StackOverflow](https://stackoverflow.com/questions/tagged/nearprotocol)
-- [NEAR Discord](https://near.chat)
-- [NEAR Telegram Developers Community Group](https://t.me/neardev)
-- NEAR DevHub: [Telegram](https://t.me/neardevhub), [Twitter](https://twitter.com/neardevhub)
