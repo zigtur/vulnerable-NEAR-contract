@@ -10,7 +10,7 @@ pub struct Contract {
     pub supply: u16,
 }
 
-// Implement the contract structure
+
 #[near]
 impl Contract {
     #[init]
@@ -28,7 +28,7 @@ impl Contract {
             supply: 1,
         }
     }
-    // Public method - returns the greeting saved, defaulting to DEFAULT_GREETING
+
     pub fn owner_of(&self, id: Balance) -> Option<AccountId> {
         self.tokens.get(&id).cloned()
     }
@@ -58,6 +58,7 @@ impl Contract {
 
 #[cfg(test)]
 mod tests {
+    use near_sdk::{test_utils::VMContextBuilder, testing_env};
     use super::*;
 
     #[test]
