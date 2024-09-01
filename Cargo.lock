@@ -13,16 +13,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "Near-Contract"
-version = "0.1.0"
-dependencies = [
- "near-sdk",
- "near-workspaces",
- "serde_json",
- "tokio",
-]
-
-[[package]]
 name = "actix"
 version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3066,6 +3056,16 @@ dependencies = [
  "thiserror",
  "tracing",
  "zeropool-bn",
+]
+
+[[package]]
+name = "near-vulnerable-contract"
+version = "0.1.0"
+dependencies = [
+ "near-sdk",
+ "near-workspaces",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]

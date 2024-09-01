@@ -1,5 +1,5 @@
 use near_sdk::store::LookupMap;
-use near_sdk::{env, log, near, require, AccountId};
+use near_sdk::{env, near, require, AccountId};
 
 pub type Balance = u8;
 
@@ -10,6 +10,19 @@ pub struct Contract {
     pub supply: u16,
 }
 
+impl Default for Contract {
+    fn default() -> Self {
+        Self {
+            tokens: {
+                let mut a = LookupMap::new(b"tokens".to_vec());
+                a.insert(0, "admin.near".parse().unwrap());
+                a
+            },
+            approvals: LookupMap::new(b"approvals".to_vec()),
+            supply: 1,
+        }
+    }
+}
 
 #[near]
 impl Contract {
