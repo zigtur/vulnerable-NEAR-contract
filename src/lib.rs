@@ -1,12 +1,12 @@
 use near_sdk::store::LookupMap;
 use near_sdk::{env, log, near, require, AccountId};
 
-pub type Balance = u8;
+pub type Id = u8;
 
 #[near(contract_state)]
 pub struct Contract {
-    pub tokens: LookupMap<Balance, AccountId>,
-    pub approvals: LookupMap<Balance, AccountId>,
+    pub tokens: LookupMap<Id, AccountId>,
+    pub approvals: LookupMap<Id, AccountId>,
     pub supply: u16,
 }
 
@@ -29,23 +29,23 @@ impl Contract {
         }
     }
 
-    pub fn owner_of(&self, id: Balance) -> Option<AccountId> {
+    pub fn owner_of(&self, id: Id) -> Option<AccountId> {
         self.tokens.get(&id).cloned()
     }
 
-    pub fn mint(&mut self) -> Balance {
+    pub fn mint(&mut self) -> Id {
         self.tokens.insert(self.supply.to_le_bytes()[0], env::predecessor_account_id());
         let id = self.supply;
         self.supply += 1;
-        id as Balance
+        id as Id
     }
 
-    pub fn approve(&mut self, id: Balance, delegatee: AccountId) {
+    pub fn approve(&mut self, id: Id, delegatee: AccountId) {
         require!(self.tokens.get(&id).unwrap().clone() == env::predecessor_account_id(), "not owner!");
         self.approvals.insert(id, delegatee);
     }
 
-    pub fn transfer(&mut self, id: Balance, receiver: AccountId) {
+    pub fn transfer(&mut self, id: Id, receiver: AccountId) {
         require!(
             self.tokens.get(&id).unwrap().clone() == env::predecessor_account_id()
             || self.approvals.get(&id).unwrap().clone() == env::predecessor_account_id()
@@ -55,15 +55,28 @@ impl Contract {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use near_sdk::{test_utils::VMContextBuilder, testing_env};
     use super::*;
 
     #[test]
-    fn test() {
+    fn exploit_todo() {
+        let bob: AccountId = "bob.near".parse().unwrap();
+        set_context(bob.clone());
+        // init
+        let admin: AccountId = "admin.near".parse().unwrap();
+        let mut contract = Contract::init(admin.clone());
+        assert_eq!(contract.owner_of(0).unwrap(), admin);
+        
+    }
 
+    // Auxiliar fn: create a mock context
+    fn set_context(predecessor: AccountId) {
+        let mut builder = VMContextBuilder::new();
+        builder.predecessor_account_id(predecessor);
+
+        testing_env!(builder.build());
     }
 
 }
